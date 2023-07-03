@@ -12,8 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
         alt: picture.description,
     }));
 
-    let isModalOpen = false;
-
     function createGalleryItem({ href, caption, src, alt }) {
         const li = document.createElement('li');
         const a = document.createElement('a');
@@ -31,34 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
         a.appendChild(img);
         li.appendChild(a);
         galleryList.appendChild(li);
-
-        a.addEventListener('click', function (evt) {
-            evt.preventDefault();
-
-            const lightbox = new SimpleLightbox('.gallery__link', {elements: [this], captionsData: 'alt', captionDelay: 250},)
-
-            isModalOpen = true;
-
-            function keyDownEsc(event) {
-                if (event.key === 'Escape') {
-                    lightbox.close();
-                }
-            }
-
-            function removeKeyDownListener() {
-                document.removeEventListener('keydown', keyDownEsc);
-            }
-
-            lightbox.on('shown.simplelightbox', () => {
-                document.addEventListener('keydown', keyDownEsc);
-            });
-
-            lightbox.on('closed.simplelightbox', () => {
-                isModalOpen = false;
-                removeKeyDownListener();
-            });
-        });
     }
 
     pictures.forEach(createGalleryItem);
+    const lightbox = new SimpleLightbox('.gallery__link', {elements: [this], captionsData: 'alt', captionDelay: 250},)
 });
