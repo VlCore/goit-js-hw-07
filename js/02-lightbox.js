@@ -4,35 +4,61 @@ import { galleryItems } from './gallery-items.js';
 console.log(galleryItems);
 
 document.addEventListener('DOMContentLoaded', () => {
+    const galleryList = document.querySelector('.gallery');
+    const pictures = galleryItems.map((picture) => ({
+        href: picture.original,
+        caption: picture.description,
+        src: picture.preview,
+        alt: picture.description,
+    }));
 
-    const galleryList = document.querySelector('.gallery')
+    let isModalOpen = false;
 
-    galleryItems.forEach(picture => {
-        const li = document.createElement('li')
-        const a = document.createElement('a')
-        const img = document.createElement('img')
+    function createGalleryItem({ href, caption, src, alt }) {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        const img = document.createElement('img');
 
         li.classList.add('gallery__item');
         a.classList.add('gallery__link');
         img.classList.add('gallery__image');
 
-        a.href = picture.original
-        a.setAttribute('data-caption', picture.description)
-        img.src = picture.preview
-        img.alt = picture.description
+        a.href = href;
+        a.setAttribute('data-caption', caption);
+        img.src = src;
+        img.alt = alt;
 
-        a.appendChild(img)
-        li.appendChild(a)
-
-        galleryList.appendChild(li)
+        a.appendChild(img);
+        li.appendChild(a);
+        galleryList.appendChild(li);
 
         a.addEventListener('click', function (evt) {
-            evt.preventDefault()
-            const imageSource = this.getAttribute('href')
-            const caption = this.getAttribute('data-caption')
-            const instance = new SimpleLightbox('.gallery__link', {elements: [this], captionsData: 'alt', captionDelay: 250},)
-            instance.open()
+            evt.preventDefault();
+
+            const lightbox = new SimpleLightbox('.gallery__link', {elements: [this], captionsData: 'alt', captionDelay: 250},)
+
+            isModalOpen = true;
+
+            function keyDownEsc(event) {
+                if (event.key === 'Escape') {
+                    lightbox.close();
+                }
+            }
+
+            function removeKeyDownListener() {
+                document.removeEventListener('keydown', keyDownEsc);
+            }
+
+            lightbox.on('shown.simplelightbox', () => {
+                document.addEventListener('keydown', keyDownEsc);
+            });
+
+            lightbox.on('closed.simplelightbox', () => {
+                isModalOpen = false;
+                removeKeyDownListener();
+            });
         });
-        
-    })
-})
+    }
+
+    pictures.forEach(createGalleryItem);
+});

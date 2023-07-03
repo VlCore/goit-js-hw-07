@@ -4,48 +4,63 @@ import { galleryItems } from './gallery-items.js';
 console.log(galleryItems);
 
 document.addEventListener('DOMContentLoaded', () => {
-
     const galleryList = document.querySelector('.gallery')
+    const pictures = galleryItems.map((picture) => ({
+        href: picture.original,
+        caption: picture.description,
+        src: picture.preview,
+        alt: picture.description,
+    }))
 
-    galleryItems.forEach(picture => {
+    let isModaOpen = false
+
+    function createGalleryItem({ href, caption, src, alt }) {
         const li = document.createElement('li')
         const a = document.createElement('a')
         const img = document.createElement('img')
 
-        li.classList.add('gallery__item');
-        a.classList.add('gallery__link');
-        img.classList.add('gallery__image');
+        li.classList.add('gallery__item')
+        a.classList.add('gallery__link')
+        img.classList.add('gallery__image')
 
-        a.href = picture.original
-        a.setAttribute('data-caption', picture.description)
-        img.src = picture.preview
-        img.alt = picture.description
+        a.href = href
+        a.setAttribute('data-caption', caption)
+        img.src = src
+        img.alt = alt
 
         a.appendChild(img)
         li.appendChild(a)
-
         galleryList.appendChild(li)
 
         a.addEventListener('click', function (evt) {
             evt.preventDefault()
-            const imageSource = this.getAttribute('href')
-            const caption = this.getAttribute('data-caption')
-            const instance = basicLightbox.create(`<img src="${imageSource}" alt="${caption}" />`)
+
+            const instance = basicLightbox.create(`<img src="${href}" alt="${caption}" />`)
             instance.show()
-        
 
-            const keyDownEsc = (event) => {
+            isModaOpen = true
+
+            function keyDownEsc(event) {
                 if (event.key === 'Escape') {
-                    instance.close();
+                    instance.close()
                 }
-            };
+            }
 
-            const removeKeyDownListener = () => {
-                document.removeEventListener('keydown', keyDownEsc);
-            };
+            function removeKeyDownListener() {
+                document.removeEventListener('keydown', keyDownEsc)
+            }
 
-            instance.element().addEventListener('hidden', removeKeyDownListener);
-            document.addEventListener('keydown', keyDownEsc);
-        });
-    })
+            instance.element().addEventListener('hidden', () => {
+                isModaOpen = false
+                removeKeyDownListener()
+            })
+            document.addEventListener('keydown', (evt) => {
+                if (isModaOpen && evt.key === 'Escape'){
+                    instance.close()
+                }
+            })
+        })
+    }
+
+    pictures.forEach(createGalleryItem)
 })
