@@ -3,6 +3,8 @@ import { galleryItems } from './gallery-items.js';
 
 console.log(galleryItems);
 
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const galleryList = document.querySelector('.gallery');
     const pictures = galleryItems.map((picture) => ({
@@ -32,5 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     pictures.forEach(createGalleryItem);
-    const lightbox = new SimpleLightbox('.gallery__link', {elements: [this], captionsData: 'alt', captionDelay: 250},)
+
+    const lightbox = new SimpleLightbox('.gallery__item a', {
+        captionsData: 'data-caption',
+        captionDelay: 250,
+    });
 });
