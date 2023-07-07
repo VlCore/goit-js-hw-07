@@ -1,42 +1,23 @@
-import { galleryItems } from './gallery-items.js';
-// Change code below this line
+import { galleryItems } from "./gallery-items.js";
 
-console.log(galleryItems);
+const gallery = document.querySelector(".gallery")
 
+const galleryList = galleryItems.map((picture) => {
+    return `<li class="gallery__item">
+                <a class="gallery__link" href="${picture.original}">
+                    <img 
+                        class="gallery__image" 
+                        src="${picture.preview}" 
+                        data-source="${picture.original}" 
+                        alt="${picture.description}"
+                    />
+                </a>
+            </li>`
+  }).join("")
 
+gallery.insertAdjacentHTML("afterbegin", galleryList)
 
-document.addEventListener('DOMContentLoaded', () => {
-    const galleryList = document.querySelector('.gallery');
-    const pictures = galleryItems.map((picture) => ({
-        href: picture.original,
-        caption: picture.description,
-        src: picture.preview,
-        alt: picture.description,
-    }));
-
-    function createGalleryItem({ href, caption, src, alt }) {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        const img = document.createElement('img');
-
-        li.classList.add('gallery__item');
-        a.classList.add('gallery__link');
-        img.classList.add('gallery__image');
-
-        a.href = href;
-        a.setAttribute('data-caption', caption);
-        img.src = src;
-        img.alt = alt;
-
-        a.appendChild(img);
-        li.appendChild(a);
-        galleryList.appendChild(li);
-    }
-
-    pictures.forEach(createGalleryItem);
-
-    const lightbox = new SimpleLightbox('.gallery__item a', {
-        captionsData: 'data-caption',
-        captionDelay: 250,
-    });
+const lightbox = new SimpleLightbox('.gallery__item a', {
+    captionsData: 'alt',
+    captionDelay: 250,
 });

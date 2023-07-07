@@ -1,65 +1,41 @@
-import { galleryItems } from './gallery-items.js';
-// Change code below this line
+import { galleryItems } from "./gallery-items.js";
 
-console.log(galleryItems);
+const gallery = document.querySelector(".gallery")
 
+const galleryList = galleryItems.map((picture) => {
+    return `<li class="gallery__item">
+                <a class="gallery__link" href="${picture.original}">
+                    <img 
+                        class="gallery__image" 
+                        src="${picture.preview}" 
+                        data-source="${picture.original}" 
+                        alt="${picture.description}"
+                    />
+                </a>
+            </li>`
+  }).join("")
 
-document.addEventListener('DOMContentLoaded', () => {
-    const galleryList = document.querySelector('.gallery');
-    const pictures = galleryItems.map((picture) => ({
-        href: picture.original,
-        caption: picture.description,
-        src: picture.preview,
-        alt: picture.description,
-    }));
+gallery.insertAdjacentHTML("afterbegin", galleryList)
 
-    function createGalleryItem({ href, caption, src, alt }) {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        const img = document.createElement('img');
+const picClicked = (event) => {
+  event.preventDefault()
 
-        li.classList.add('gallery__item');
-        a.classList.add('gallery__link');
-        img.classList.add('gallery__image');
+  const {target: { dataset }} = event
 
-        a.href = href;
-        a.setAttribute('data-caption', caption);
-        img.src = src;
-        img.alt = alt;
+  if (event.target.nodeName !== "IMG") {
+    return;
+  }
+  const lightbox = basicLightbox.create(`<img src=${dataset.source}>`);
+  lightbox.show()
 
-        a.appendChild(img);
-        li.appendChild(a);
-        galleryList.appendChild(li);
+  const keyDownEsc = (event) => {
+    if (event.key === "Escape") {
+      lightbox.close(() => {
+        document.removeEventListener("keydown", keyDownEsc)
+      });
     }
+  };
+  document.addEventListener("keydown", keyDownEsc);
+};
 
-    pictures.forEach(createGalleryItem);
-
-    galleryList.addEventListener('click', (evt) => {
-        evt.preventDefault();
-        const clickedElement = evt.target;
-
-        if (clickedElement.classList.contains('gallery__image')) {
-            const href = clickedElement.parentNode.href;
-            const caption = clickedElement.parentNode.getAttribute('data-caption');
-
-            const instance = basicLightbox.create(`<img src="${href}" alt="${caption}" />`);
-            instance.show();
-
-            function keyDownEsc(event) {
-                if (event.key === 'Escape') {
-                    instance.close();
-                }
-            }
-
-            function removeKeyDownListener() {
-                document.removeEventListener('keydown', keyDownEsc);
-            }
-
-            instance.element().addEventListener('hidden', () => {
-                removeKeyDownListener();
-            });
-
-            document.addEventListener('keydown', keyDownEsc);
-        }
-    });
-});
+gallery.addEventListener("click", picClicked);
